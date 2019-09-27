@@ -40,6 +40,8 @@ func (mqtt *MQTT) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
   switch function {
   case "add":
     return mqtt.add(stub, args)
+  case "query":
+    return mqtt.query(stub, args)
   default:
     return shim.Error("Invalid function name.")
   }
@@ -90,6 +92,39 @@ func (mqtt *MQTT) add(stub shim.ChaincodeStubInterface, args []string) pb.Respon
 
   if errState := stub.PutState(strconv.FormatUint(id, 10), jsonValue); errState != nil {
     return shim.Error(errState.Error())
+  }
+  return shim.Success(jsonValue)
+}
+
+func (mqtt *MQTT) query(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+  if len(args) != 1 {
+		return shim.Error("Incorrect number of arguments. Expecting id of the message to query.")
+	}
+
+  id := args[0]
+
+  resultIterator, err := stub.GetHistoryForKey(id)
+  if err != nil {
+    return shim.Error(err.Error())
+  }
+
+  message := make(map[string]MQTTMessage)
+
+  defer resultIterator.Close()
+  for resultIterator.HasNext() {
+    item, _ := resultIterator.Next()
+
+    _message := MQTTMessage{}
+    if e := json.Unmarshal(item.Value, &_message); e != nil {
+      return shim.Error(e.Error())
+    }
+
+    message[item.TxId] = _message
+  }
+
+  jsonValue, err := json.Marshal(message)
+  if err != nil {
+    return shim.Error(err.Error())
   }
   return shim.Success(jsonValue)
 }
