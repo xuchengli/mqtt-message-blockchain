@@ -74,5 +74,18 @@ class Channel {
       throw new Error(err.toString())
     }
   }
+  async list () {
+    try {
+      const channelNames = new Set()
+      const peers = this.client.getPeersForOrg()
+      for (const peer of peers) {
+        const response = await this.client.queryChannels(peer, true)
+        response.channels.map(res => res.channel_id).forEach(channel => channelNames.add(channel))
+      }
+      return [...channelNames]
+    } catch (err) {
+      throw new Error(err.toString())
+    }
+  }
 }
 module.exports = Channel
