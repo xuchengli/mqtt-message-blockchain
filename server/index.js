@@ -1,3 +1,4 @@
+require('dotenv').config()
 const Koa = require('koa')
 const consola = require('consola')
 const { Nuxt, Builder } = require('nuxt')
@@ -7,6 +8,9 @@ const app = new Koa()
 // Import and Set Nuxt.js options
 const config = require('../nuxt.config.js')
 config.dev = app.env !== 'production'
+
+const Helper = require('./fabric/lib/helper')
+const Channel = require('./fabric/lib/channel')
 
 async function start () {
   // Instantiate nuxt.js
@@ -39,4 +43,16 @@ async function start () {
   })
 }
 
-start()
+async function init () {
+  const helper = new Helper()
+  const client = await helper.getClientForOrg()
+
+  const channel = new Channel(client)
+  const channelList = await channel.list()
+
+  consola.success(channelList)
+}
+
+start().then(() => {
+  init()
+})

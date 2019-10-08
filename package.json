@@ -14,11 +14,14 @@
   "dependencies": {
     "@nuxtjs/axios": "^5.3.6",
     "cross-env": "^5.2.0",
+    "dotenv": "^8.1.0",
     "fabric-ca-client": "^1.4.4",
     "fabric-client": "^1.4.4",
     "iview": "^3.1.5",
+    "js-yaml": "^3.13.1",
     "koa": "^2.6.2",
-    "nuxt": "^2.0.0"
+    "nuxt": "^2.0.0",
+    "sleep-promise": "^8.0.1"
   },
   "devDependencies": {
     "nodemon": "^1.18.9",

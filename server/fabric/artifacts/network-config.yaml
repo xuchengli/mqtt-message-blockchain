@@ -31,6 +31,10 @@ version: "1.0"
 #
 client:
   organization: Org1
+  credentialStore:
+    path: './hfc-kvs'
+    cryptoStore:
+      path: './hfc-cvs'
 
 #
 # [Optional]. But most apps would have this section so that channel objects can be constructed
