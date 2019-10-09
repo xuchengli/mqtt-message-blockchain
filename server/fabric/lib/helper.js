@@ -5,7 +5,7 @@ const consola = require('consola')
 const hfc = require('fabric-client')
 
 class Helper {
-  async getClientForOrg () {
+  async getClientForOrg (username) {
     try {
       const config = yaml.safeLoad(fs.readFileSync(path.join(__dirname, '../artifacts/network-config.yaml'), 'utf8'))
       config.orderers['orderer.example.com'].url = `grpc://${process.env.FABRIC_ORDERER_HOST}:7050`
@@ -15,6 +15,13 @@ class Helper {
 
       const client = hfc.loadFromConfig(config)
       await client.initCredentialStores()
+
+      if (username) {
+        const user = await client.getUserContext(username, true)
+        if (!user) {
+          throw new Error(`User was not found: ${username}`)
+        }
+      }
       return client
     } catch (e) {
       throw new Error(e.toString())
