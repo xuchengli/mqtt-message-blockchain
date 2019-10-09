@@ -50,7 +50,11 @@ async function init () {
   process.env.GOPATH = path.join(__dirname, './fabric/artifacts')
 
   const helper = new Helper()
-  const client = await helper.getClientForOrg()
+
+  const user = await helper.getRegisteredUser('guest')
+  consola.info('Register user response: %j', user)
+
+  const client = await helper.getClientForOrg('guest')
 
   const channel = new Channel(client)
   const channelList = await channel.list()

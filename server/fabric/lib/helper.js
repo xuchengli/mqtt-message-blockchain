@@ -11,7 +11,7 @@ class Helper {
       config.orderers['orderer.example.com'].url = `grpc://${process.env.FABRIC_ORDERER_HOST}:7050`
       config.peers['peer0.org1.example.com'].url = `grpc://${process.env.FABRIC_PEER_HOST}:7051`
       config.peers['peer0.org1.example.com'].eventUrl = `grpc://${process.env.FABRIC_PEER_HOST}:7053`
-      config.certificateAuthorities['ca-org1'].url = `http://${process.env.FABRIC_CA_HOST}:7054`
+      config.certificateAuthorities['ca.example.com'].url = `http://${process.env.FABRIC_CA_HOST}:7054`
 
       const client = hfc.loadFromConfig(config)
       await client.initCredentialStores()
@@ -47,17 +47,17 @@ class Helper {
 
         const secret = await caClient.register({
           enrollmentID: username,
-          affiliation: clientConfig.organization
+          affiliation: clientConfig.organization.toLowerCase()
         }, adminUserObj)
 
-        consola.info('Successfully got the secret for user %s', username)
+        consola.success('Successfully got the secret for user %s', username)
 
         user = await client.setUserContext({
           username,
           password: secret
         })
 
-        consola.info('Successfully enrolled username %s and setUserContext on the client object', username)
+        consola.success('Successfully enrolled username %s and setUserContext on the client object', username)
       }
       if (user && user.isEnrolled) {
         return {
