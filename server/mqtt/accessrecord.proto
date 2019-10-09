@@ -1,0 +1,11 @@
+package accessrecord;
+syntax = "proto3";
+
+message AccessRecord {
+  uint64 id = 1;
+  uint64 sn = 2;
+  uint64 time = 3;
+  uint32 device_id = 4;
+  bool opened = 5;
+  uint32 code_type = 6;
+}
