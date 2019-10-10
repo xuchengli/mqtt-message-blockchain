@@ -60,8 +60,9 @@ async function init () {
   const client = await helper.getClientForOrg('guest')
 
   const channel = new Channel(client)
-  const channelList = await channel.list()
+  const chaincode = new ChainCode(client)
 
+  const channelList = await channel.list()
   if (channelList.length === 0) {
     const tx = path.join(__dirname, './fabric/artifacts/config/channel.tx')
     const createdChannel = await channel.create('mychannel', tx)
@@ -72,7 +73,6 @@ async function init () {
     await sleep(5000)
     await channel.join('mychannel')
 
-    const chaincode = new ChainCode(client)
     const installed = await chaincode.install('github.com/mqtt', 'mqtt', '1.0')
     if (!installed.success) {
       throw new Error('Failed to install the chaincode.')
@@ -117,7 +117,9 @@ async function init () {
         const decodedMsg = AccessRecordMessage.decode(message)
         const jsonMsg = JSON.parse(JSON.stringify(decodedMsg))
 
-        consola.info(jsonMsg)
+        const { id = '0', sn = '0', time = Date.now(), deviceId = 0, opened = false, codeType = 0 } = jsonMsg
+
+        chaincode.invoke('mqtt', 'add', [ id, sn, time, deviceId.toString(), opened.toString(), codeType.toString() ])
       })
     })
   })
