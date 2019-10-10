@@ -1,8 +1,11 @@
 require('dotenv').config()
 const path = require('path')
+const fs = require('fs')
 const Koa = require('koa')
 const consola = require('consola')
 const sleep = require('sleep-promise')
+const mqtt = require('mqtt')
+const protobuf = require('protobufjs')
 const { Nuxt, Builder } = require('nuxt')
 
 const app = new Koa()
@@ -82,6 +85,42 @@ async function init () {
     channelList.push('mychannel')
   }
   consola.success('Channel list: ', channelList)
+
+  // subscribe mqtt message
+  const KEY = fs.readFileSync(path.join(__dirname, './mqtt/tls/client.key'))
+  const CERT = fs.readFileSync(path.join(__dirname, './mqtt/tls/client.pem'))
+  const TRUSTED_CA_LIST = fs.readFileSync(path.join(__dirname, './mqtt/tls/ca.pem'))
+
+  const options = {
+    port: 8883,
+    host: 'emq.yfmen.com',
+    key: KEY,
+    cert: CERT,
+    rejectUnauthorized: false,
+    // The CA list will be used to determine if server is authorized
+    ca: TRUSTED_CA_LIST,
+    protocol: 'mqtts'
+  }
+  const mqttClient = mqtt.connect(options)
+  mqttClient.on('connect', function () {
+    consola.success('连接成功>>>>')
+
+    protobuf.load(path.join(__dirname, './mqtt/accessrecord.proto'), function (err, root) {
+      if (err) {
+        throw err
+      }
+      const AccessRecordMessage = root.lookupType('accessrecord.AccessRecord')
+
+      mqttClient.subscribe('/d/r')
+      mqttClient.on('message', function (topic, message) {
+        // message is Buffer
+        const decodedMsg = AccessRecordMessage.decode(message)
+        const jsonMsg = JSON.parse(JSON.stringify(decodedMsg))
+
+        consola.info(jsonMsg)
+      })
+    })
+  })
 }
 
 start().then(() => {
