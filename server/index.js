@@ -86,6 +86,41 @@ async function init () {
   }
   consola.success('Channel list: ', channelList)
 
+  // connect to peer's event service, and register block listener
+  const eventHub = channel.getEventHub()
+  eventHub.registerBlockEvent((block) => {
+    consola.info('===============')
+
+    const { header: { number }, data: { data } } = block
+    const blockInfo = {
+      number,
+      transaction: data.map((d) => {
+        const { header: { channel_header: { 'tx_id': txId } }, data: { actions } } = d.payload
+        const payload = actions.map((action) => {
+          const { payload: { action: { proposal_response_payload: { extension: { response: { payload } } } } } } = action
+          return payload
+        })
+        return {
+          txId,
+          payload
+        }
+      })
+    }
+    consola.info('%o', blockInfo)
+
+    consola.info('===============')
+  }, (err) => {
+    consola.error('Failed to receive the block event :: %s', err)
+    throw new Error(err.toString())
+  }, { unregister: false, disconnect: false })
+  eventHub.connect(true, (err, res) => {
+    if (err) {
+      consola.error('Failed to connect to peer event hub.', err)
+      throw new Error(err.toString())
+    }
+    consola.success('Peer event hub connect successfully!')
+  })
+
   // subscribe mqtt message
   const KEY = fs.readFileSync(path.join(__dirname, './mqtt/tls/client.key'))
   const CERT = fs.readFileSync(path.join(__dirname, './mqtt/tls/client.pem'))
@@ -103,7 +138,7 @@ async function init () {
   }
   const mqttClient = mqtt.connect(options)
   mqttClient.on('connect', function () {
-    consola.success('连接成功>>>>')
+    consola.success('MQTT 连接成功>>>>')
 
     protobuf.load(path.join(__dirname, './mqtt/accessrecord.proto'), function (err, root) {
       if (err) {

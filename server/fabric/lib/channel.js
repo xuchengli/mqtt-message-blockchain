@@ -87,5 +87,15 @@ class Channel {
       throw new Error(err.toString())
     }
   }
+  getEventHub () {
+    try {
+      const channel = this.client.getChannel()
+      const peer = this.client.getPeersForOrg()[0]
+
+      return channel.newChannelEventHub(peer)
+    } catch (err) {
+      throw new Error(err.toString())
+    }
+  }
 }
 module.exports = Channel
