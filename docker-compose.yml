@@ -92,5 +92,42 @@ services:
     networks:
       - mqtt_basic
 
+  app:
+    build: .
+    image: mqtt-message-blockchain
+    container_name: mqtt-message-blockchain
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - hfc-kvs:/usr/app/src/hfc-kvs
+      - hfc-cvs:/usr/app/src/hfc-cvs
+    command: /bin/bash -c "cd /usr/app/src && npm start"
+    depends_on:
+      - ca.example.com
+      - orderer.example.com
+      - peer0.org1.example.com
+      - couchdb
+    networks:
+      - mqtt_basic
+
+  nginx:
+    image: nginx
+    container_name: nginx
+    restart: always
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - "80:80"
+    links:
+      - app
+    command: /bin/bash -c "nginx -g 'daemon off;'"
+    networks:
+      - mqtt_basic
+
+volumes:
+    hfc-kvs:
+    hfc-cvs:
+
 networks:
   mqtt_basic:
