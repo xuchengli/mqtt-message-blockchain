@@ -2,6 +2,7 @@ require('dotenv').config()
 const path = require('path')
 const fs = require('fs')
 const Koa = require('koa')
+const IO = require('koa-socket-2')
 const consola = require('consola')
 const sleep = require('sleep-promise')
 const mqtt = require('mqtt')
@@ -9,6 +10,7 @@ const protobuf = require('protobufjs')
 const { Nuxt, Builder } = require('nuxt')
 
 const app = new Koa()
+const io = new IO()
 
 // Import and Set Nuxt.js options
 const config = require('../nuxt.config.js')
@@ -41,6 +43,8 @@ async function start () {
     ctx.req.ctx = ctx // This might be useful later on, e.g. in nuxtServerInit or with nuxt-stash
     nuxt.render(ctx.req, ctx.res)
   })
+
+  io.attach(app)
 
   app.listen(port, host)
   consola.ready({
@@ -90,7 +94,6 @@ async function init () {
   const eventHub = channel.getEventHub()
   eventHub.registerBlockEvent((block) => {
     consola.info('===============')
-
     const { header: { number }, data: { data } } = block
     const blockInfo = {
       number,
@@ -107,8 +110,10 @@ async function init () {
       })
     }
     consola.info('%o', blockInfo)
-
     consola.info('===============')
+
+    // broadcast blockInfo to all connections
+    app.io.broadcast('block info', blockInfo)
   }, (err) => {
     consola.error('Failed to receive the block event :: %s', err)
     throw new Error(err.toString())
@@ -152,8 +157,10 @@ async function init () {
         const decodedMsg = AccessRecordMessage.decode(message)
         const jsonMsg = JSON.parse(JSON.stringify(decodedMsg))
 
-        const { id = '0', sn = '0', time = Date.now(), deviceId = 0, opened = false, codeType = 0 } = jsonMsg
+        // broadcast mqtt message to all connections
+        app.io.broadcast('mqtt message', jsonMsg)
 
+        const { id = '0', sn = '0', time = Date.now(), deviceId = 0, opened = false, codeType = 0 } = jsonMsg
         chaincode.invoke('mqtt', 'add', [ id, sn, time, deviceId.toString(), opened.toString(), codeType.toString() ])
       })
     })
