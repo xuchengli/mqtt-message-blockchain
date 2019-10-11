@@ -24,7 +24,8 @@
     "mqtt": "^3.0.0",
     "nuxt": "^2.0.0",
     "protobufjs": "^6.8.8",
-    "sleep-promise": "^8.0.1"
+    "sleep-promise": "^8.0.1",
+    "socket.io-client": "^2.3.0"
   },
   "devDependencies": {
     "nodemon": "^1.18.9",

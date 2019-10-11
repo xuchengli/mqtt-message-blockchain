@@ -60,5 +60,8 @@ module.exports = {
     */
     extend (config, ctx) {
     }
+  },
+  env: {
+    WS_URL: process.env.WS_URL || 'http://localhost:3000'
   }
 }
