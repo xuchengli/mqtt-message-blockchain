@@ -7,7 +7,7 @@ RUN mkdir -p ${WORK_DIR}
 WORKDIR ${WORK_DIR}
 
 COPY package.json ${WORK_DIR}
-RUN npm install --production
+RUN npm install
 
 COPY . ${WORK_DIR}
 RUN npm run build
