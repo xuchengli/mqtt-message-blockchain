@@ -24,6 +24,7 @@ class ChainCode {
         return res && res.response && res.response.status === 200
       }).every(res => res)
       if (result) {
+        consola.success('Successfully install chaincode.')
         return {
           success: true,
           message: 'Successfully install chaincode.'
@@ -51,7 +52,7 @@ class ChainCode {
         args,
         txId
       }
-      const results = await channel.sendInstantiateProposal(request, 60000)
+      const results = await channel.sendInstantiateProposal(request, 120000)
       // the returned object has both the endorsement results
       // and the actual proposal, the proposal will be needed
       // later when we send a transaction to the orderer

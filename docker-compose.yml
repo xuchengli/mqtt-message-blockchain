@@ -99,9 +99,6 @@ services:
     restart: unless-stopped
     ports:
       - "3000:3000"
-    volumes:
-      - hfc-kvs:/usr/app/src/hfc-kvs
-      - hfc-cvs:/usr/app/src/hfc-cvs
     command: /bin/bash -c "cd /usr/app/src && npm start"
     depends_on:
       - ca.example.com
@@ -124,10 +121,6 @@ services:
     command: /bin/bash -c "nginx -g 'daemon off;'"
     networks:
       - mqtt_basic
-
-volumes:
-    hfc-kvs:
-    hfc-cvs:
 
 networks:
   mqtt_basic:
