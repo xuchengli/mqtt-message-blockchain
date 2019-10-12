@@ -189,7 +189,7 @@ class ChainCode {
           }, (err) => {
             clearTimeout(eventTimeout)
             reject(err)
-          }, { unregister: true, disconnect: true })
+          }, { unregister: true, disconnect: false })
           eh.connect()
         })
         promises.push(eventPromise)
