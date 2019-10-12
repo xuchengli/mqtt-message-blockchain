@@ -52,7 +52,7 @@ class ChainCode {
         args,
         txId
       }
-      const results = await channel.sendInstantiateProposal(request, 120000)
+      const results = await channel.sendInstantiateProposal(request, 60000)
       // the returned object has both the endorsement results
       // and the actual proposal, the proposal will be needed
       // later when we send a transaction to the orderer
