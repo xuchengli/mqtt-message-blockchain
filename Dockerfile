@@ -12,4 +12,5 @@ RUN npm install
 COPY . ${WORK_DIR}
 RUN npm run build
 
+EXPOSE 3000
 CMD ["npm", "start"]
