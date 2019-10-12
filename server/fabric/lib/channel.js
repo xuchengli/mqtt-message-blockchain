@@ -90,7 +90,9 @@ class Channel {
   getEventHub () {
     try {
       const channel = this.client.getChannel()
-      return channel.getChannelEventHubsForOrg()[0]
+      const peer = this.client.getPeersForOrg()[0]
+
+      return channel.newChannelEventHub(peer)
     } catch (err) {
       throw new Error(err.toString())
     }
